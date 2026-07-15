@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "catch2",
+    "cpp-httplib",
+    "ftxui",
+    "nlohmann-json",
+    "sqlite3"
+  ]
+}

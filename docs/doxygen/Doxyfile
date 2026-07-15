@@ -1,0 +1,19 @@
+# Project related options
+
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "accountable-system"
+OUTPUT_DIRECTORY       = docs/out
+
+
+# Configuration options related to the input files
+
+INPUT                  = src README.md
+INPUT_ENCODING         = UTF-8
+RECURSIVE              = YES
+EXCLUDE_SYMLINKS       = NO
+EXCLUDE_PATTERNS       = */build/*
+
+# Configuration options related to source browsing
+
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
