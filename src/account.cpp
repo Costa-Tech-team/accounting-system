@@ -1,52 +1,32 @@
 #include "account.hpp"
 #include <cassert>
-#include <cstdint>
-#include <sys/types.h>
 
 static constexpr bool isCategoryBoth(Account::Category category,
                                      Account::Category toCompare1,
                                      Account::Category toCompare2)
 {
-    return (category & toCompare1) == (category & toCompare2);
-}
-
-static bool isAssetOrLiability(Account::Category category)
-{
-    return (category &
-            (Account::Category::asset | Account::Category::liability)) !=
-           Account::Category::none;
-}
-
-static bool hasQualifications(Account::Category category)
-{
-
-    return (category & (Account::Category::current | Account::Category::fixed |
-                        Account::Category::debit |
-                        Account::Category::credit)) != Account::Category::none;
+    auto categoryIntersects1 = accomplishesCategory(category, toCompare1);
+    auto categoryIntersects2 = accomplishesCategory(category, toCompare2);
+    return categoryIntersects1 == categoryIntersects2;
 }
 
 static bool hasOppositesCombination(Account::Category category)
 {
     return isCategoryBoth(category, Account::Category::asset,
-                          Account::Category::liability) &&
+                          Account::Category::liability) ||
            isCategoryBoth(category, Account::Category::revenue,
-                          Account::Category::expense) &&
-           isCategoryBoth(category, Account::Category::current,
-                          Account::Category::fixed) &&
+                          Account::Category::expense) ||
            isCategoryBoth(category, Account::Category::debit,
                           Account::Category::credit);
 }
 
-static bool isValid(Account::Category category)
+bool isValid(Account::Category category)
 {
-    if (category == Account::Category::none &&
-        hasOppositesCombination(category))
-    {
-        return false;
-    }
-    bool assetOrLiability = isAssetOrLiability(category);
-    bool qualifications = hasQualifications(category);
-    return assetOrLiability == qualifications;
+    auto isNone = category == Account::Category::none;
+    auto oppositesCombination = hasOppositesCombination(category);
+    bool debitOrCredit =
+        accomplishesCategory(category, Account::Category::debitOrCredit);
+    return !(isNone || oppositesCombination) && debitOrCredit;
 }
 
 Account::Account(Category category, std::string_view accountName)
@@ -60,13 +40,14 @@ std::string Account::toString()
 {
     std::string result{accountName + " ( )"};
     result[result.length() - 1] =
-        accomplishesCategory(Category::debit) ? '+' : '-';
+        accomplishesCategory(accountCategory, Category::debit) ? '+' : '-';
     return result;
 }
 
-bool Account::accomplishesCategory(Category category)
+bool accomplishesCategory(Account::Category category,
+                          Account::Category toAccomplish)
 {
-    return static_cast<uint8_t>(accountCategory & category) != 0;
+    return (category & toAccomplish) != Account::Category::none;
 }
 
 Account::Category operator|(Account::Category lhs, Account::Category rhs)
@@ -74,7 +55,6 @@ Account::Category operator|(Account::Category lhs, Account::Category rhs)
     using T = std::underlying_type_t<Account::Category>;
     auto result = static_cast<Account::Category>(static_cast<T>(lhs) |
                                                  static_cast<T>(rhs));
-    assert(isValid(result));
     return result;
 }
 
@@ -83,6 +63,5 @@ Account::Category operator&(Account::Category lhs, Account::Category rhs)
     using T = std::underlying_type_t<Account::Category>;
     auto result = static_cast<Account::Category>(static_cast<T>(lhs) &
                                                  static_cast<T>(rhs));
-    assert(isValid(result));
     return result;
 }

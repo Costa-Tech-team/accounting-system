@@ -12,22 +12,29 @@ class Account
         liability = 1 << 1,
         revenue = 1 << 2,
         expense = 1 << 3,
-        current = 1 << 4,
-        fixed = 1 << 5,
         debit = 1 << 6,
-        credit = 1 << 7
+        credit = 1 << 7,
+
+        assetOrLiability = 0b11,
+        revenueOrExpense = 0b11 << 2,
+        debitOrCredit = 0b11 << 6,
     };
 
     Account(Category category, std::string_view accountName);
 
-    std::string toString();
+    Category getAccountCategory();
 
-    bool accomplishesCategory(Category category);
+    std::string toString();
 
   private:
     Category accountCategory;
     std::string accountName;
 };
+
+bool accomplishesCategory(Account::Category category,
+                          Account::Category toAccomplish);
+
+bool isValid(Account::Category category);
 
 Account::Category operator|(Account::Category lhs, Account::Category rhs);
 
