@@ -1,16 +1,17 @@
 set(
   UNIT_TESTS 
-  # test
+  account_test
 )
 
 set(TESTS_ARGS) 
 
 find_package(Catch2 CONFIG REQUIRED)
 
-#add_executable(
-  #test 
-  #${CMAKE_SOURCE_DIR}/src/source.cpp
-#)
+add_executable(
+  account_test
+  account_test.cpp
+  ${CMAKE_SOURCE_DIR}/src/account.cpp
+)
 
 foreach(TEST_NAME IN LISTS UNIT_TESTS)
   add_test(${TEST_NAME} ${TEST_NAME} ${TESTS_ARGS})
