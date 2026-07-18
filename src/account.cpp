@@ -5,8 +5,8 @@ static constexpr bool isCategoryBoth(Account::Category category,
                                      Account::Category toCompare1,
                                      Account::Category toCompare2)
 {
-    auto categoryIntersects1 = accomplishesCategory(category, toCompare1);
-    auto categoryIntersects2 = accomplishesCategory(category, toCompare2);
+    auto categoryIntersects1 = fullfilsCategory(category, toCompare1);
+    auto categoryIntersects2 = fullfilsCategory(category, toCompare2);
     return categoryIntersects1 == categoryIntersects2;
 }
 
@@ -25,7 +25,7 @@ bool isValid(Account::Category category)
     auto isNone = category == Account::Category::none;
     auto oppositesCombination = hasOppositesCombination(category);
     bool debitOrCredit =
-        accomplishesCategory(category, Account::Category::debitOrCredit);
+        fullfilsCategory(category, Account::Category::debitOrCredit);
     return !(isNone || oppositesCombination) && debitOrCredit;
 }
 
@@ -40,14 +40,13 @@ std::string Account::toString()
 {
     std::string result{accountName + " ( )"};
     result[result.length() - 1] =
-        accomplishesCategory(accountCategory, Category::debit) ? '+' : '-';
+        fullfilsCategory(accountCategory, Category::debit) ? '+' : '-';
     return result;
 }
 
-bool accomplishesCategory(Account::Category category,
-                          Account::Category toAccomplish)
+bool fullfilsCategory(Account::Category category, Account::Category toFullfil)
 {
-    return (category & toAccomplish) != Account::Category::none;
+    return (category & toFullfil) != Account::Category::none;
 }
 
 Account::Category operator|(Account::Category lhs, Account::Category rhs)
