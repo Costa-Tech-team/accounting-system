@@ -7,15 +7,16 @@
 
 TEST_CASE("Checking contradictory combinations are invalidated")
 {
-    auto invalid = Account::Category::asset | Account::Category::liability |
-                   Account::Category::debit;
-    REQUIRE_FALSE(isValid(invalid));
+    REQUIRE_FALSE(isValid(Account::Category::assetOrLiability));
 
-    invalid = Account::Category::revenue | Account::Category::expense |
-              Account::Category::debit;
-    REQUIRE_FALSE(isValid(invalid));
+    REQUIRE_FALSE(isValid(Account::Category::revenueOrExpense));
 
-    invalid = Account::Category::asset | Account::Category::debit |
-              Account::Category::credit;
-    REQUIRE_FALSE(isValid(invalid));
+    REQUIRE_FALSE(
+        isValid(Account::Category::asset | Account::Category::revenue));
+
+    REQUIRE_FALSE(
+        isValid(Account::Category::netWorth | Account::Category::asset));
+
+    REQUIRE_FALSE(
+        isValid(Account::Category::netWorth | Account::Category::revenue));
 }

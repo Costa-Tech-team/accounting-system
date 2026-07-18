@@ -15,18 +15,25 @@ static bool hasOppositesCombination(Account::Category category)
     return isCategoryBoth(category, Account::Category::asset,
                           Account::Category::liability) ||
            isCategoryBoth(category, Account::Category::revenue,
-                          Account::Category::expense) ||
-           isCategoryBoth(category, Account::Category::debit,
-                          Account::Category::credit);
+                          Account::Category::expense);
+}
+
+static bool hasExclusivesCombination(Account::Category category)
+{
+    bool assetOrLiability =
+        fullfilsCategory(category, Account::Category::assetOrLiability);
+    bool revenueOrExpense =
+        fullfilsCategory(category, Account::Category::revenueOrExpense);
+    bool netWorth = fullfilsCategory(category, Account::Category::netWorth);
+    return 1 < (assetOrLiability + revenueOrExpense + netWorth);
 }
 
 bool isValid(Account::Category category)
 {
-    auto isNone = category == Account::Category::none;
+    auto isNotNone = category != Account::Category::none;
     auto oppositesCombination = hasOppositesCombination(category);
-    bool debitOrCredit =
-        fullfilsCategory(category, Account::Category::debitOrCredit);
-    return !(isNone || oppositesCombination) && debitOrCredit;
+    auto exclusivesCombination = hasExclusivesCombination(category);
+    return isNotNone && !oppositesCombination && !exclusivesCombination;
 }
 
 Account::Account(Category category, std::string_view accountName)
@@ -36,13 +43,7 @@ Account::Account(Category category, std::string_view accountName)
     this->accountName = accountName;
 }
 
-std::string Account::toString()
-{
-    std::string result{accountName + " ( )"};
-    result[result.length() - 1] =
-        fullfilsCategory(accountCategory, Category::debit) ? '+' : '-';
-    return result;
-}
+std::string Account::getAccountName() const { return accountName; }
 
 bool fullfilsCategory(Account::Category category, Account::Category toFullfil)
 {
