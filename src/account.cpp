@@ -1,33 +1,50 @@
 #include "account.hpp"
 #include <cassert>
 #include <cstdint>
+#include <stdexcept>
 #include <string>
 #include <sys/types.h>
 
 Account::Account(Category category, Currentability currentability,
                  uint8_t accountCode, const Subcategory *subcategory,
-                 uint8_t subaccountCode)
-  : category{category},
+                 uint8_t subaccountCode, bool postable)
+  : postable{postable},
+    category{category},
     currentability{currentability},
     subcategory{subcategory},
     accountCode{accountCode},
     subaccountCode{subaccountCode}
-{}
+{
+    bool assetOrLiability =
+        category == Category::asset || category == Category::liability;
+    bool hasCurrentability = currentability != Currentability::none;
+    if (assetOrLiability != hasCurrentability)
+    {
+        throw std::invalid_argument(
+            "Account currentability is invalid por its category");
+    }
+    if (accountCode == 0)
+    {
+        throw std::invalid_argument("Account code must be above 0");
+    }
+}
 
 Account::Nature Account::getNature(Account::Category category)
 {
+    Account::Nature result;
     switch (category)
     {
     case Account::Category::asset:
     case Account::Category::expenseOrCost:
-        return Account::Nature::debtor;
+        result = Account::Nature::debtor;
         break;
     case Account::Category::liability:
     case Account::Category::netWorth:
     case Account::Category::revenue:
-        return Account::Nature::creditor;
+        result = Account::Nature::creditor;
         break;
     }
+    return result;
 }
 
 Account::Nature Account::getNature() { return Account::getNature(category); }

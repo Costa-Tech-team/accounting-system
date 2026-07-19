@@ -1,3 +1,4 @@
+#include <stdexcept>
 #define CATCH_CONFIG_MAIN
 
 #include <catch2/benchmark/catch_benchmark.hpp>
@@ -7,16 +8,11 @@
 
 TEST_CASE("Checking contradictory combinations are invalidated")
 {
-    // REQUIRE_FALSE(isValid(Account::Category::assetOrLiability));
+    REQUIRE_THROWS_AS(
+        Account(Account::Category::asset, Account::Currentability::none, 1),
+        std::invalid_argument);
 
-    // REQUIRE_FALSE(isValid(Account::Category::revenueOrExpense));
-
-    // REQUIRE_FALSE(
-    //     isValid(Account::Category::asset | Account::Category::revenue));
-
-    // REQUIRE_FALSE(
-    //     isValid(Account::Category::netWorth | Account::Category::asset));
-
-    // REQUIRE_FALSE(
-    //     isValid(Account::Category::netWorth | Account::Category::revenue));
+    REQUIRE_THROWS_AS(Account(Account::Category::netWorth,
+                              Account::Currentability::current, 1),
+                      std::invalid_argument);
 }

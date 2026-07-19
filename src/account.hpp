@@ -56,7 +56,7 @@ class Account
     /// and subaccount are defaulted to zero.
     Account(Category category, Currentability currentability,
             uint8_t accountCode, const Subcategory *subcategory = nullptr,
-            uint8_t subaccountCode = 0);
+            uint8_t subaccountCode = 0, bool postable = true);
 
     /// @return the nature of any account given its category.
     static Nature getNature(Category category);
