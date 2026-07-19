@@ -1,67 +1,49 @@
 #include "account.hpp"
 #include <cassert>
+#include <cstdint>
+#include <string>
+#include <sys/types.h>
 
-static constexpr bool isCategoryBoth(Account::Category category,
-                                     Account::Category toCompare1,
-                                     Account::Category toCompare2)
+Account::Account(Category category, Currentability currentability,
+                 uint8_t accountCode, uint8_t subcategoryCode,
+                 uint8_t subaccountCode)
+  : accountCategory{category},
+    currentability{currentability},
+    subcategoryCode{subcategoryCode},
+    accountCode{accountCode},
+    subaccountCode{subaccountCode}
+{}
+
+std::string Account::getCode() const
 {
-    auto categoryIntersects1 = fullfilsCategory(category, toCompare1);
-    auto categoryIntersects2 = fullfilsCategory(category, toCompare2);
-    return categoryIntersects1 == categoryIntersects2;
+    uint8_t categoryNumber = static_cast<uint8_t>(accountCategory) + 1;
+    std::string code{std::to_string(categoryNumber) + "."};
+    if (currentability != Currentability::none)
+    {
+        uint8_t currentabilityNumber = static_cast<uint8_t>(currentability);
+        code += std::to_string(currentabilityNumber) + ".";
+    }
+    if (subcategoryCode != 0)
+    {
+        code += std::to_string(subcategoryCode) + ".";
+    }
+    code += std::to_string(accountCode) + ".";
+    if (subaccountCode != 0)
+    {
+        code += std::to_string(subaccountCode);
+    }
+    return code;
 }
 
-static bool hasOppositesCombination(Account::Category category)
+Account::Category Account::getCategory() const { return accountCategory; }
+
+Account::Currentability Account::getCurrentability() const
 {
-    return isCategoryBoth(category, Account::Category::asset,
-                          Account::Category::liability) ||
-           isCategoryBoth(category, Account::Category::revenue,
-                          Account::Category::expense);
+    return currentability;
 }
 
-static bool hasExclusivesCombination(Account::Category category)
-{
-    bool assetOrLiability =
-        fullfilsCategory(category, Account::Category::assetOrLiability);
-    bool revenueOrExpense =
-        fullfilsCategory(category, Account::Category::revenueOrExpense);
-    bool netWorth = fullfilsCategory(category, Account::Category::netWorth);
-    return 1 < (assetOrLiability + revenueOrExpense + netWorth);
-}
+uint8_t Account::getSubcategory() const { return subcategoryCode; }
 
-bool isValid(Account::Category category)
-{
-    auto isNotNone = category != Account::Category::none;
-    auto oppositesCombination = hasOppositesCombination(category);
-    auto exclusivesCombination = hasExclusivesCombination(category);
-    return isNotNone && !oppositesCombination && !exclusivesCombination;
-}
+uint8_t Account::getAccountCode() const { return accountCode; }
 
-Account::Account(Category category, std::string_view accountName)
-{
-    assert(isValid(category));
-    accountCategory = category;
-    this->accountName = accountName;
-}
-
-std::string Account::getAccountName() const { return accountName; }
-
-bool fullfilsCategory(Account::Category category, Account::Category toFullfil)
-{
-    return (category & toFullfil) != Account::Category::none;
-}
-
-Account::Category operator|(Account::Category lhs, Account::Category rhs)
-{
-    using T = std::underlying_type_t<Account::Category>;
-    auto result = static_cast<Account::Category>(static_cast<T>(lhs) |
-                                                 static_cast<T>(rhs));
-    return result;
-}
-
-Account::Category operator&(Account::Category lhs, Account::Category rhs)
-{
-    using T = std::underlying_type_t<Account::Category>;
-    auto result = static_cast<Account::Category>(static_cast<T>(lhs) &
-                                                 static_cast<T>(rhs));
-    return result;
-}
+uint8_t Account::getSubaccountCode() const { return subaccountCode; }
