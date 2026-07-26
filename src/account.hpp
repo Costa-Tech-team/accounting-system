@@ -10,15 +10,23 @@ struct Subcategory
     std::string displayName;
 };
 
+/// @brief represents a agrupation of subaccounts for example to note different
+/// accounts when the user has assets in different banks.
+struct Superaccount
+{
+    uint8_t code;
+    std::string displayName;
+};
+
 /// @brief This class contains information about an accountable account.
 ///
 /// it always contains the category, wether its current of fixed and
 /// the account code. It can also contain a subcategory of account before
 /// the account code (for example if the user wants to disinguish between
 /// assets in banks or cash and assets in documents) and a
-/// subaccount after the account code for specification of accounts (for
+/// superaccount after the account code to group accounts (for
 /// example, when the user wants to note differents banks in their
-/// operations). Every account has also a
+/// operations).
 class Account
 {
   public:
@@ -56,7 +64,7 @@ class Account
     /// and subaccount are defaulted to zero.
     Account(Category category, Currentability currentability,
             uint8_t accountCode, const Subcategory *subcategory = nullptr,
-            uint8_t subaccountCode = 0, bool postable = true);
+            uint8_t subaccountCode = 0);
 
     /// @return the nature of any account given its category.
     static Nature getNature(Category category);
@@ -71,19 +79,21 @@ class Account
 
     Category getCategory() const;
     Currentability getCurrentability() const;
-    /// @return nullptr if not subcategory, a Subcategory instance otherwise.
+    /// @return nullptr if not subcategory, a pointer to a Subcategory instance
+    /// otherwise.
     const Subcategory *getSubcategory() const;
+    /// @return nullptr if not superaccount, a pointer to a Superaccount
+    /// instance otherwise.
+    const Superaccount *getSuperaccount() const;
     uint8_t getAccountCode() const;
     /// @return 0 if not subaccount, a code above 0 if there's subaccount
-    uint8_t getSubaccountCode() const;
 
   private:
-    bool postable;
     std::string_view displayName;
-
     Category category;
     Currentability currentability;
     const Subcategory *subcategory;
+    const Superaccount *superaccount;
     uint8_t accountCode;
     uint8_t subaccountCode;
 };

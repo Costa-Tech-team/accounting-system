@@ -7,9 +7,8 @@
 
 Account::Account(Category category, Currentability currentability,
                  uint8_t accountCode, const Subcategory *subcategory,
-                 uint8_t subaccountCode, bool postable)
-  : postable{postable},
-    category{category},
+                 uint8_t subaccountCode)
+  : category{category},
     currentability{currentability},
     subcategory{subcategory},
     accountCode{accountCode},
@@ -77,11 +76,11 @@ Account::Currentability Account::getCurrentability() const
     return currentability;
 }
 
+const Superaccount *Account::getSuperaccount() const { return superaccount; }
+
 const Subcategory *Account::getSubcategory() const { return subcategory; }
 
 uint8_t Account::getAccountCode() const { return accountCode; }
-
-uint8_t Account::getSubaccountCode() const { return subaccountCode; }
 
 uint8_t subCode(Account::Category category)
 {
