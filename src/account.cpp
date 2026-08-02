@@ -6,26 +6,25 @@
 #include <sys/types.h>
 
 Account::Account(Category category, Currentability currentability,
-                 uint8_t accountCode, const Subcategory *subcategory,
-                 uint8_t subaccountCode)
+                 uint8_t accountCode, const Superaccount *superaccount)
   : category{category},
     currentability{currentability},
-    subcategory{subcategory},
-    accountCode{accountCode},
-    subaccountCode{subaccountCode}
+    subcategory{nullptr},
+    superaccount{superaccount},
+    accountCode{accountCode}
 {
-    bool assetOrLiability =
-        category == Category::asset || category == Category::liability;
-    bool hasCurrentability = currentability != Currentability::none;
-    if (assetOrLiability != hasCurrentability)
-    {
-        throw std::invalid_argument(
-            "Account currentability is invalid por its category");
-    }
-    if (accountCode == 0)
-    {
-        throw std::invalid_argument("Account code must be above 0");
-    }
+    validate();
+}
+
+Account::Account(const Subcategory &subcategory, uint8_t accountCode,
+                 const Superaccount *superaccount)
+  : category{subcategory.category},
+    currentability{subcategory.currentability},
+    subcategory{&subcategory},
+    superaccount{superaccount},
+    accountCode{accountCode}
+{
+    validate();
 }
 
 Account::Nature Account::getNature(Account::Category category)
@@ -61,11 +60,11 @@ std::string Account::getCode() const
     {
         code += std::to_string(subcategory->code) + ".";
     }
-    code += std::to_string(accountCode) + ".";
-    if (subaccountCode != 0)
+    if (superaccount != nullptr)
     {
-        code += std::to_string(subaccountCode);
+        code += std::to_string(superaccount->code) + ".";
     }
+    code += std::to_string(accountCode);
     return code;
 }
 
@@ -81,6 +80,22 @@ const Superaccount *Account::getSuperaccount() const { return superaccount; }
 const Subcategory *Account::getSubcategory() const { return subcategory; }
 
 uint8_t Account::getAccountCode() const { return accountCode; }
+
+void Account::validate()
+{
+    bool assetOrLiability =
+        category == Category::asset || category == Category::liability;
+    bool hasCurrentability = currentability != Currentability::none;
+    if (assetOrLiability != hasCurrentability)
+    {
+        throw std::invalid_argument(
+            "Account currentability is invalid por its category");
+    }
+    if (accountCode == 0)
+    {
+        throw std::invalid_argument("Account code must be above 0");
+    }
+}
 
 uint8_t subCode(Account::Category category)
 {

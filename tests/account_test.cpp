@@ -19,8 +19,11 @@ TEST_CASE("Checking contradictory combinations are invalidated")
 
 TEST_CASE("Getting an account's code")
 {
-    Subcategory subcategory{.code = 1, .displayName = ""};
-    Account account{Account::Category::asset, Account::Currentability::current,
-                    1, &subcategory, 1};
+    Subcategory subcategory{.code = 1,
+                            .displayName = "",
+                            .category = Account::Category::asset,
+                            .currentability = Account::Currentability::current};
+    Superaccount supperaccount{.code = 1, .displayName = ""};
+    Account account{subcategory, 1, &supperaccount};
     REQUIRE(account.getCode() == "1.1.1.1.1");
 }

@@ -2,21 +2,8 @@
 #include <string>
 #include <string_view>
 
-/// @brief represents a subcategory of accounts so that the user can group
-/// accounts with the same category and currentability.
-struct Subcategory
-{
-    uint8_t code;
-    std::string displayName;
-};
-
-/// @brief represents a agrupation of subaccounts for example to note different
-/// accounts when the user has assets in different banks.
-struct Superaccount
-{
-    uint8_t code;
-    std::string displayName;
-};
+struct Superaccount;
+struct Subcategory;
 
 /// @brief This class contains information about an accountable account.
 ///
@@ -58,13 +45,15 @@ class Account
         creditor
     };
 
-    /// If the category is an asset or a liability, currentability must not
-    /// equal none, and if the category is net worth, revenue or expense or
-    /// cost, the currentability must equal none. The optional subcategory
-    /// and subaccount are defaulted to zero.
+    /// Constructor for an account that's not inside a subcategory with an
+    /// optional superaccount to be passed in.
     Account(Category category, Currentability currentability,
-            uint8_t accountCode, const Subcategory *subcategory = nullptr,
-            uint8_t subaccountCode = 0);
+            uint8_t accountCode, const Superaccount *superaccount = nullptr);
+
+    /// Constructor for an account inside a subcategory with a optional
+    /// supperaccount to be passed in.
+    Account(const Subcategory &subcategory, uint8_t accountCode,
+            const Superaccount *superaccount = nullptr);
 
     /// @return the nature of any account given its category.
     static Nature getNature(Category category);
@@ -89,15 +78,34 @@ class Account
     /// @return 0 if not subaccount, a code above 0 if there's subaccount
 
   private:
+    void validate();
+
     std::string_view displayName;
     Category category;
     Currentability currentability;
     const Subcategory *subcategory;
     const Superaccount *superaccount;
     uint8_t accountCode;
-    uint8_t subaccountCode;
 };
 
 uint8_t subCode(Account::Category category);
 
 uint8_t subCode(Account::Currentability currentability);
+
+/// @brief represents a subcategory of accounts so that the user can group
+/// accounts with the same category and currentability.
+struct Subcategory
+{
+    uint8_t code;
+    std::string displayName;
+    Account::Category category;
+    Account::Currentability currentability;
+};
+
+/// @brief represents a agrupation of subaccounts for example to note different
+/// accounts when the user has assets in different banks.
+struct Superaccount
+{
+    uint8_t code;
+    std::string displayName;
+};
