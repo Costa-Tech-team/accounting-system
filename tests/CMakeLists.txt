@@ -11,6 +11,7 @@ add_executable(
   accounts_test
   accounts_test.cpp
   ${CMAKE_SOURCE_DIR}/src/account.cpp
+  ${CMAKE_SOURCE_DIR}/src/accounting_entry.cpp
 )
 
 foreach(TEST_NAME IN LISTS UNIT_TESTS)

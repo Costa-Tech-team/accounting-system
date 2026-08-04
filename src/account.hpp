@@ -2,6 +2,8 @@
 #include <string>
 #include <string_view>
 
+#pragma once
+
 struct Superaccount;
 struct Subcategory;
 
@@ -47,24 +49,28 @@ class Account
 
     /// Constructor for an account that's not inside a subcategory with an
     /// optional superaccount to be passed in.
-    Account(Category category, Currentability currentability,
-            uint8_t accountCode, const Superaccount *superaccount = nullptr);
+    Account(std::string_view displayName, Category category,
+            Currentability currentability, uint8_t accountCode,
+            const Superaccount *superaccount = nullptr);
 
     /// Constructor for an account inside a subcategory with a optional
     /// supperaccount to be passed in.
-    Account(const Subcategory &subcategory, uint8_t accountCode,
-            const Superaccount *superaccount = nullptr);
+    Account(std::string_view displayName, const Subcategory &subcategory,
+            uint8_t accountCode, const Superaccount *superaccount = nullptr);
+
+    /// @return the name of the account
+    std::string_view getDisplayName() const;
+
+    /// @return a code with the numerical representation of every quality of the
+    /// account separed by dots. The context of the code is provided by the
+    /// AccountsChart.
+    std::string getCode() const;
 
     /// @return the nature of any account given its category.
     static Nature getNature(Category category);
 
     /// \overload
     Nature getNature();
-
-    /// @return a code with the numerical representation of every quality of the
-    /// account separed by dots. The context of the code is provided by the
-    /// AccountsChart.
-    std::string getCode() const;
 
     Category getCategory() const;
     Currentability getCurrentability() const;
@@ -80,7 +86,7 @@ class Account
   private:
     void validate();
 
-    std::string_view displayName;
+    std::string displayName;
     Category category;
     Currentability currentability;
     const Subcategory *subcategory;

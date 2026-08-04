@@ -3,11 +3,14 @@
 #include <cstdint>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <sys/types.h>
 
-Account::Account(Category category, Currentability currentability,
-                 uint8_t accountCode, const Superaccount *superaccount)
-  : category{category},
+Account::Account(std::string_view displayName, Category category,
+                 Currentability currentability, uint8_t accountCode,
+                 const Superaccount *superaccount)
+  : displayName{displayName},
+    category{category},
     currentability{currentability},
     subcategory{nullptr},
     superaccount{superaccount},
@@ -16,9 +19,10 @@ Account::Account(Category category, Currentability currentability,
     validate();
 }
 
-Account::Account(const Subcategory &subcategory, uint8_t accountCode,
-                 const Superaccount *superaccount)
-  : category{subcategory.category},
+Account::Account(std::string_view displayName, const Subcategory &subcategory,
+                 uint8_t accountCode, const Superaccount *superaccount)
+  : displayName{displayName},
+    category{subcategory.category},
     currentability{subcategory.currentability},
     subcategory{&subcategory},
     superaccount{superaccount},
@@ -46,6 +50,8 @@ Account::Nature Account::getNature(Account::Category category)
 }
 
 Account::Nature Account::getNature() { return Account::getNature(category); }
+
+std::string_view Account::getDisplayName() const { return displayName; }
 
 std::string Account::getCode() const
 {

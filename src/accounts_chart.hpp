@@ -3,6 +3,8 @@
 
 #include "account.hpp"
 
+#pragma once
+
 /// @brief Represents an accounts chart for a organization that is modifiable.
 /// common use accounts are pre-defined.
 ///
