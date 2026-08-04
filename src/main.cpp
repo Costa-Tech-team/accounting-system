@@ -1,7 +1,7 @@
 #include <iostream>
 
-int main(int argc, const char **argv)
+int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
 {
-  std::cout << "Hello, world";
-  return 0;
+    std::cout << "Hello, world";
+    return 0;
 }

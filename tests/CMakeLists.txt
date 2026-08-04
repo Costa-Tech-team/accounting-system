@@ -10,8 +10,8 @@ find_package(Catch2 CONFIG REQUIRED)
 add_executable(
   accounts_test
   accounts_test.cpp
-  ${CMAKE_SOURCE_DIR}/src/account.cpp
-  ${CMAKE_SOURCE_DIR}/src/accounting_entry.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/account.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/accounting_entry.cpp
 )
 
 foreach(TEST_NAME IN LISTS UNIT_TESTS)
