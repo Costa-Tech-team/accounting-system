@@ -9,10 +9,10 @@
 TEST_CASE("Checking contradictory combinations are invalidated")
 {
     REQUIRE_THROWS_AS(
-        Account(Account::Category::asset, Account::Currentability::none, 1),
+        Account("", Account::Category::asset, Account::Currentability::none, 1),
         std::invalid_argument);
 
-    REQUIRE_THROWS_AS(Account(Account::Category::netWorth,
+    REQUIRE_THROWS_AS(Account("", Account::Category::netWorth,
                               Account::Currentability::current, 1),
                       std::invalid_argument);
 }
@@ -24,6 +24,6 @@ TEST_CASE("Getting an account's code")
                             .category = Account::Category::asset,
                             .currentability = Account::Currentability::current};
     Superaccount supperaccount{.code = 1, .displayName = ""};
-    Account account{subcategory, 1, &supperaccount};
+    Account account{"", subcategory, 1, &supperaccount};
     REQUIRE(account.getCode() == "1.1.1.1.1");
 }

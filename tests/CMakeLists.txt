@@ -1,6 +1,6 @@
 set(
   UNIT_TESTS 
-  account_test
+  accounts_test
 )
 
 set(TESTS_ARGS) 
@@ -8,8 +8,8 @@ set(TESTS_ARGS)
 find_package(Catch2 CONFIG REQUIRED)
 
 add_executable(
-  account_test
-  account_test.cpp
+  accounts_test
+  accounts_test.cpp
   ${CMAKE_SOURCE_DIR}/src/account.cpp
 )
 
