@@ -68,3 +68,5 @@ void AccountingEntry::sortMovements()
     std::sort(movements.begin(), firstCreditIt, alphabeticalSorting);
     std::sort(firstCreditIt, movements.end(), alphabeticalSorting);
 }
+
+Date AccountingEntry::getDate() const { return date; }

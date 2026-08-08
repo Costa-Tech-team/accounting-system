@@ -4,6 +4,7 @@ set(
   core/account.cpp
   core/accounting_entry.cpp
   core/accounts_chart.cpp
+  core/journal.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

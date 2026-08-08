@@ -32,6 +32,12 @@ class AccountingEntry
     AccountingEntry(std::vector<Movement> &&movements, std::string_view detail,
                     const Date &date = currentDate());
 
+    AccountingEntry(const AccountingEntry &) = default;
+    AccountingEntry(AccountingEntry &&) = default;
+    AccountingEntry &operator=(const AccountingEntry &) = default;
+    AccountingEntry &operator=(AccountingEntry &&) = default;
+    ~AccountingEntry() = default;
+
     /// @return a view of the movements of the entry, sorted so that every debit
     /// are first and then by the alphabetical order of the accounts.
     std::span<const Movement> getMovements() const;
