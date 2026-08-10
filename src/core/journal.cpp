@@ -4,10 +4,10 @@
 
 #include <algorithm>
 
-bool isEntryPast(AccountingEntry &past, AccountingEntry &other)
+static bool isEntryPast(AccountingEntry &past, AccountingEntry &toCompare)
 {
     auto pastDate = past.getDate();
-    auto otherDate = other.getDate();
+    auto otherDate = toCompare.getDate();
     if (pastDate.year() != otherDate.year())
     {
         return pastDate.year() < otherDate.year();
@@ -24,7 +24,7 @@ Journal::Journal(std::vector<AccountingEntry> &&entries, AccountsChart &&chart)
   : entries{std::move(entries)},
     chart{std::move(chart)}
 {
-    std::ranges::sort(entries, isEntryPast);
+    std::ranges::sort(this->entries, isEntryPast);
 }
 
 std::span<const AccountingEntry> Journal::getEntries() const { return entries; }

@@ -1,7 +1,7 @@
 #include <chrono>
 #include <functional>
 
-#include "account.hpp"
+#include "account_node.hpp"
 
 #pragma once
 
@@ -19,7 +19,7 @@ struct Movement
 
     Type type;
     int ammount;
-    std::reference_wrapper<Account> account;
+    std::reference_wrapper<AccountNode> account;
 };
 
 /// @brief Represents a entry in a accountable journal for a commercial
@@ -47,8 +47,6 @@ class AccountingEntry
 
   private:
     static Date currentDate();
-
-    void sortMovements();
 
     std::vector<Movement> movements;
     std::string detail;

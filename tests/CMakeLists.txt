@@ -10,7 +10,7 @@ find_package(Catch2 CONFIG REQUIRED)
 add_executable(
   accounts_test
   accounts_test.cpp
-  ${CMAKE_SOURCE_DIR}/src/core/account.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/account_node.cpp
   ${CMAKE_SOURCE_DIR}/src/core/accounting_entry.cpp
 )
 

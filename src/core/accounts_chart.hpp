@@ -1,7 +1,7 @@
 #include <span>
 #include <vector>
 
-#include "account.hpp"
+#include "account_node.hpp"
 
 #pragma once
 
@@ -14,18 +14,8 @@ class AccountsChart
   public:
     AccountsChart();
 
-    std::span<const Subcategory> getSubcategories() const;
-    std::span<const Superaccount> getSuperaccounts() const;
-    std::span<const Account> getAccounts() const;
-
-    std::vector<const Account *>
-    filterByCurrentability(Account::Category category,
-                           Account::Currentability currentability);
-
-    std::vector<const Account *> filterBySubcategory();
+    std::span<const AccountNode> getAccounts() const;
 
   private:
-    std::vector<Subcategory> subcategories;
-    std::vector<Superaccount> superaccount;
-    std::vector<Account> accounts;
+    std::vector<AccountNode> topLevelAccounts;
 };

@@ -1,10 +1,11 @@
 #include <stdexcept>
+#include <string>
 #define CATCH_CONFIG_MAIN
 
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include <core/account.hpp>
+#include <core/account_node.hpp>
 #include <core/accounting_entry.hpp>
 
 TEST_CASE("Accountable accounts")
@@ -12,12 +13,12 @@ TEST_CASE("Accountable accounts")
     SECTION("Checking contradictory combinations are invalidated")
     {
         auto invalid1 = []() {
-            Account("", Account::Category::asset, Account::Currentability::none,
-                    1);
+            AccountNode("", 1, AccountNode::Category::asset,
+                        AccountNode::Currentability::none);
         };
         auto invalid2 = []() {
-            Account("", Account::Category::netWorth,
-                    Account::Currentability::current, 1);
+            AccountNode("", 1, AccountNode::Category::netWorth,
+                        AccountNode::Currentability::current);
         };
 
         REQUIRE_THROWS_AS(invalid1(), std::invalid_argument);
@@ -26,15 +27,12 @@ TEST_CASE("Accountable accounts")
 
     SECTION("Getting an account's code")
     {
-        Subcategory subcategory{.code = 1,
-                                .displayName = "",
-                                .category = Account::Category::asset,
-                                .currentability =
-                                    Account::Currentability::current};
-        Superaccount supperaccount{.code = 1, .displayName = ""};
-        Account account{"", subcategory, 1, &supperaccount};
 
-        REQUIRE(account.getCode() == "1.1.1.1.1");
+        AccountNode parentAccount{"", 1, AccountNode::Category::asset,
+                                  AccountNode::Currentability::current};
+        AccountNode childAccount{"", parentAccount};
+        REQUIRE(parentAccount.getCode() == "1.1.1");
+        REQUIRE(childAccount.getCode() == "1.1.1.1");
     }
 }
 
@@ -42,8 +40,8 @@ TEST_CASE("Accountable entries")
 {
     SECTION("Creating a entry with differents debit and credit")
     {
-        Account acc{"", Account::Category::asset,
-                    Account::Currentability::current, 1};
+        AccountNode acc{"", 1, AccountNode::Category::asset,
+                        AccountNode::Currentability::current, 1};
         std::vector<Movement> movements;
         movements.emplace_back(Movement::Type::debit, 3, acc);
         movements.emplace_back(Movement::Type::credit, 1, acc);
@@ -55,14 +53,14 @@ TEST_CASE("Accountable entries")
 
     SECTION("Checking if a entry sorts its movements in order")
     {
-        Account ac1{"a", Account::Category::asset,
-                    Account::Currentability::current, 1};
-        Account ac2{"b", Account::Category::liability,
-                    Account::Currentability::current, 3};
-        Account ac3{"c", Account::Category::asset,
-                    Account::Currentability::current, 2};
-        Account ac4{"d", Account::Category::liability,
-                    Account::Currentability::current, 4};
+        AccountNode ac1{"a", 1, AccountNode::Category::asset,
+                        AccountNode::Currentability::current, true};
+        AccountNode ac2{"b", 2, AccountNode::Category::liability,
+                        AccountNode::Currentability::current, true};
+        AccountNode ac3{"c", 3, AccountNode::Category::asset,
+                        AccountNode::Currentability::current, true};
+        AccountNode ac4{"d", 4, AccountNode::Category::liability,
+                        AccountNode::Currentability::current, true};
         std::vector<Movement> movements;
         movements.emplace_back(Movement::Type::credit, 25, ac4);
         movements.emplace_back(Movement::Type::debit, 25, ac2);

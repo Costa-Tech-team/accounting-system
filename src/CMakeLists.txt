@@ -1,7 +1,7 @@
 set(
   SOURCE_FILES
   main.cpp
-  core/account.cpp
+  core/account_node.cpp
   core/accounting_entry.cpp
   core/accounts_chart.cpp
   core/journal.cpp
