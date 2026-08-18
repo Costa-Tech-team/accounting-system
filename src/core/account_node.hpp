@@ -81,26 +81,26 @@ class AccountNode
     std::string_view getDisplayName() const;
 
     /// @return a code formated as "X.X..." where every number notes category,
-    /// currentability (only if asset or liability), and then parents in
+    /// currentability (only if asset or liability), and then the parents in
     /// hierarchical order and at last the subcode of the node itself.
     std::string getCode() const;
 
-    /// @return a numerical code of the node itself with any of the codes on any
-    /// parents.
+    /// @return a numerical code of the node itself without any of the codes on
+    /// any parents.
     uint8_t getNodeSubcode() const;
 
     /// @return the nature of the account given its category.
-    Nature getNature();
+    Nature getNature() const;
 
     /// \overload
     static Nature getNature(Category category);
 
-    /// @return the category of the account, if the account has a parent the
-    /// category will match to that of the parent.
+    /// @return the category of the account, if the account is not orphan,
+    /// it will return the category of the top parent in its hierarchy.
     Category getCategory() const;
 
-    /// @return the currentability of the account, if the account has a parent
-    /// the currentability will match to that of the parent.
+    /// @return the currentability of the account, if the account is not orphan,
+    /// it will return the currentability of the top parent in its hierarchy.
     Currentability getCurrentability() const;
 
     /// @return the parent account, null if the account has no parent.
@@ -114,7 +114,11 @@ class AccountNode
     /// \overload
     std::span<const AccountNode> getChildren() const;
 
-    /// Adds a child account that is owned by the parent.
+    void setDisplayName(std::string_view name);
+
+    void setPostable(bool postable = true);
+
+    /// Adds a child account to be owned by this instance.
     void addChild(AccountNode &&account);
 
   private:

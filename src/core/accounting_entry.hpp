@@ -1,9 +1,9 @@
 #include <chrono>
 #include <functional>
 
-#include "account_node.hpp"
-
 #pragma once
+
+class AccountNode;
 
 using Date = std::chrono::year_month_day;
 
@@ -23,9 +23,11 @@ struct Movement
 };
 
 /// @brief Represents a entry in a accountable journal for a commercial
-/// transaction. It stores what accounts are involved and by how much, but the
-/// total of the debit and the credit must be equal. Also the user can store a
-/// description or detail for every transaction.
+/// transaction.
+///
+/// It stores what accounts are involved in every movement and by how much, but
+/// the total of the debit and the credit must be equal. Also the user can store
+/// a description or detail for every transaction.
 class AccountingEntry
 {
   public:

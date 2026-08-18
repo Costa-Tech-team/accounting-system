@@ -1,10 +1,6 @@
 #include "account_node.hpp"
 
-#include <cassert>
-#include <cstdint>
 #include <stdexcept>
-#include <string>
-#include <string_view>
 
 AccountNode::AccountNode(AccountNode &&other) noexcept
   : parent{other.parent},
@@ -89,7 +85,7 @@ AccountNode::Nature AccountNode::getNature(AccountNode::Category category)
     return result;
 }
 
-AccountNode::Nature AccountNode::getNature()
+AccountNode::Nature AccountNode::getNature() const
 {
     return parent ? AccountNode::getNature(parent->getCategory()) :
                     AccountNode::getNature(*category);
@@ -115,6 +111,10 @@ std::span<const AccountNode> AccountNode::getChildren() const
 {
     return children;
 }
+
+void AccountNode::setDisplayName(std::string_view name) { displayName = name; }
+
+void AccountNode::setPostable(bool postable) { this->postable = postable; }
 
 void AccountNode::addChild(AccountNode &&account)
 {

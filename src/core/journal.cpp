@@ -1,8 +1,8 @@
 #include "journal.hpp"
-#include "accounting_entry.hpp"
-#include "accounts_chart.hpp"
 
 #include <algorithm>
+
+#include "accounting_entry.hpp"
 
 static bool isEntryPast(AccountingEntry &past, AccountingEntry &toCompare)
 {
@@ -20,11 +20,17 @@ static bool isEntryPast(AccountingEntry &past, AccountingEntry &toCompare)
     }
 }
 
-Journal::Journal(std::vector<AccountingEntry> &&entries, AccountsChart &&chart)
+Journal::Journal(std::vector<AccountingEntry> &&entries, AccountsChart &chart)
   : entries{std::move(entries)},
-    chart{std::move(chart)}
+    chart{chart}
 {
     std::ranges::sort(this->entries, isEntryPast);
 }
 
 std::span<const AccountingEntry> Journal::getEntries() const { return entries; }
+
+void Journal::addEntry(AccountingEntry &&entry)
+{
+    entries.emplace_back(std::move(entry));
+    std::ranges::sort(this->entries, isEntryPast);
+}

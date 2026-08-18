@@ -1,9 +1,9 @@
 #include "accounting_entry.hpp"
+
 #include <algorithm>
-#include <cassert>
-#include <cctype>
-#include <stdexcept>
 #include <utility>
+
+#include "account_node.hpp"
 
 static bool alphabeticalOrder(Movement &lhs, Movement &rhs)
 {

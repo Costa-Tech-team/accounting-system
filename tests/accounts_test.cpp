@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include <string>
+
 #define CATCH_CONFIG_MAIN
 
 #include <catch2/benchmark/catch_benchmark.hpp>
