@@ -8,6 +8,12 @@
 
 /// @brief this concept declares the requirements for a node type. The tree
 /// class requires these methods to work with any node type.
+///
+/// Move and copy constructors and assignments should update the parent member
+/// pointer of every children, andadding a child in a node should update the
+/// parent member pointer of every grandchildren to its corresponding father.
+/// This way, dangling pointers are avoided. The template also requires NodeType
+/// to have a property parent of type NodeType *.
 template<class NodeType>
 concept TreeNode = requires(NodeType *n, NodeType &&i) {
     { n->getParent() } -> std::same_as<NodeType *>;
@@ -21,6 +27,7 @@ concept TreeNode = requires(NodeType *n, NodeType &&i) {
 ///
 /// Works like a forest, storing from zero to many nodes in the top
 /// level. Every node can have from one to many chidren, and just one parent.
+/// It's movable only.
 template<TreeNode NodeType>
 class Tree
 {
@@ -45,26 +52,38 @@ class Tree
         basic_bidirectional_iterator operator++(int);
         basic_bidirectional_iterator operator--(int);
         bool operator==(const basic_bidirectional_iterator &) const = default;
-        // pointer get();
 
       private:
-        void step_forward(std::span<const NodeType> levelView);
-        void step_backward(std::span<const NodeType> levelView);
         pointer current;
     };
 
   public:
     Tree(std::vector<NodeType> &&topLevelNodes);
 
+    Tree(const Tree &other) = default;
+    Tree(Tree &&other) noexcept = default;
+
+    Tree &operator=(const Tree &other) = delete;
+    Tree &operator=(Tree &&other) noexcept = delete;
+
+    ~Tree() = default;
+
     /// A bidirectional iterator to the accounts in the chart. The order
     /// in each level of the tree is like this: element -> children (if present)
-    /// -> next element or parent if the ending has been reached.
+    /// -> next element. This order repeats every time the iterator steps on the
+    /// children of a node.
     using bidirectional_iterator = basic_bidirectional_iterator<false>;
 
     /// A const version of the iterator.
     using const_bidirectional_iterator = basic_bidirectional_iterator<true>;
 
     static_assert(std::bidirectional_iterator<bidirectional_iterator>);
+
+    /// @return a view of the orphan nodes of the underlying container.
+    std::span<NodeType> getTopLevelNodes();
+
+    /// @return a const view of the orphan nodes of the underlying container.
+    std::span<const NodeType> getTopLevelNodes() const;
 
     /// @return a iterator to first node.
     bidirectional_iterator begin();
@@ -186,37 +205,21 @@ Tree<NodeType>::basic_bidirectional_iterator<IsConst>::operator--(int)
 }
 
 template<TreeNode NodeType>
-template<bool IsConst>
-void Tree<NodeType>::basic_bidirectional_iterator<IsConst>::step_forward(
-    std::span<const NodeType> levelView)
-{
-    if (current != std::to_address(levelView.end()))
-    {
-        current = std::next(current);
-    } else
-    {
-        current = std::next(current->getParent());
-    }
-}
-
-template<TreeNode NodeType>
-template<bool IsConst>
-void Tree<NodeType>::basic_bidirectional_iterator<IsConst>::step_backward(
-    std::span<const NodeType> levelView)
-{
-    if (current != std::to_address(levelView.begin()))
-    {
-        current = std::next(current);
-    } else
-    {
-        current = current->getParent();
-    }
-}
-
-template<TreeNode NodeType>
 Tree<NodeType>::Tree(std::vector<NodeType> &&topLevelNodes)
   : topLevelNodes(std::move(topLevelNodes))
 {}
+
+template<TreeNode NodeType>
+std::span<NodeType> Tree<NodeType>::getTopLevelNodes()
+{
+    return topLevelNodes;
+}
+
+template<TreeNode NodeType>
+std::span<const NodeType> Tree<NodeType>::getTopLevelNodes() const
+{
+    return topLevelNodes;
+}
 
 template<TreeNode NodeType>
 Tree<NodeType>::bidirectional_iterator Tree<NodeType>::begin()
