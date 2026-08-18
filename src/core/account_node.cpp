@@ -120,6 +120,10 @@ void AccountNode::addChild(AccountNode &&account)
 {
     children.push_back(std::move(account));
     children.back().parent = this;
+    for (auto &child : children)
+    {
+        child.updateChildren();
+    }
 }
 
 void AccountNode::validate()

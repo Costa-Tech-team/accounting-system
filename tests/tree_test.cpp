@@ -57,7 +57,10 @@ struct Node
     void addChild(Node &&node)
     {
         children.push_back(std::move(node));
-        updateChildren();
+        for (auto &child : children)
+        {
+            child.updateChildren();
+        }
     }
 
     void updateChildren()
