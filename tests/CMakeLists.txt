@@ -1,6 +1,7 @@
 set(
   UNIT_TESTS 
   accounts_test
+  tree_test
 )
 
 set(TESTS_ARGS) 
@@ -12,6 +13,11 @@ add_executable(
   accounts_test.cpp
   ${CMAKE_SOURCE_DIR}/src/core/account_node.cpp
   ${CMAKE_SOURCE_DIR}/src/core/accounting_entry.cpp
+)
+
+add_executable(
+  tree_test
+  tree_test.cpp
 )
 
 foreach(TEST_NAME IN LISTS UNIT_TESTS)
