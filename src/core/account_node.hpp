@@ -47,6 +47,14 @@ class AccountNode
         creditor
     };
 
+    AccountNode(const AccountNode &other) = delete;
+    AccountNode &operator=(const AccountNode &other) = delete;
+
+    AccountNode &operator=(AccountNode &&other) noexcept;
+    AccountNode(AccountNode &&other) noexcept;
+
+    ~AccountNode() = default;
+
     /// constructor for an account without parent.
     /// @param displayName: the name of the account to display to the user
     /// @param code: the code of the node provided, must be unique.
@@ -96,10 +104,14 @@ class AccountNode
     Currentability getCurrentability() const;
 
     /// @return the parent account, null if the account has no parent.
+    AccountNode *getParent();
+    /// \overload
     const AccountNode *getParent() const;
 
     /// @return a view to all the children accounts, if the Account doesn't have
     /// children, returns a empty object.
+    std::span<AccountNode> getChildren();
+    /// \overload
     std::span<const AccountNode> getChildren() const;
 
     /// Adds a child account that is owned by the parent.
@@ -108,7 +120,9 @@ class AccountNode
   private:
     void validate();
 
-    const AccountNode *parent;
+    void updateChildren();
+
+    AccountNode *parent;
     std::vector<AccountNode> children;
 
     std::string displayName;

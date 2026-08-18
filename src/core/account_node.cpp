@@ -5,7 +5,27 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <sys/types.h>
+
+AccountNode::AccountNode(AccountNode &&other) noexcept
+  : parent{other.parent},
+    children{std::move(other.children)},
+    displayName{std::move(other.displayName)},
+    category{other.category},
+    currentability{other.currentability}
+{
+    updateChildren();
+}
+
+AccountNode &AccountNode::operator=(AccountNode &&other) noexcept
+{
+    parent = other.parent;
+    children = std::move(other.children);
+    displayName = std::move(other.displayName);
+    category = other.category;
+    currentability = other.currentability;
+    updateChildren();
+    return *this;
+}
 
 AccountNode::AccountNode(std::string_view displayName, uint8_t code,
                          Category category, Currentability currentability,
@@ -85,7 +105,11 @@ AccountNode::Currentability AccountNode::getCurrentability() const
     return parent ? parent->getCurrentability() : *currentability;
 }
 
+AccountNode *AccountNode::getParent() { return parent; }
+
 const AccountNode *AccountNode::getParent() const { return parent; }
+
+std::span<AccountNode> AccountNode::getChildren() { return children; }
 
 std::span<const AccountNode> AccountNode::getChildren() const
 {
@@ -95,6 +119,7 @@ std::span<const AccountNode> AccountNode::getChildren() const
 void AccountNode::addChild(AccountNode &&account)
 {
     children.push_back(std::move(account));
+    children.back().parent = this;
 }
 
 void AccountNode::validate()
@@ -106,6 +131,14 @@ void AccountNode::validate()
     {
         throw std::invalid_argument(
             "Account currentability is invalid for its category");
+    }
+}
+
+void AccountNode::updateChildren()
+{
+    for (auto &child : children)
+    {
+        child.parent = this;
     }
 }
 
