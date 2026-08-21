@@ -1,7 +1,7 @@
 # Project related options
 
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = "accountable-system"
+PROJECT_NAME           = "accounting-system"
 OUTPUT_DIRECTORY       = docs/out
 
 
