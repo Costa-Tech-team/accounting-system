@@ -68,9 +68,9 @@ class Tree
 
     ~Tree() = default;
 
-    /// A bidirectional iterator to the accounts in the chart. The order
-    /// in each level of the tree is like this: element -> children (if present)
-    /// -> next element. This order repeats every time the iterator steps on the
+    /// A bidirectional iterator to the nodes in the tree. The order in each
+    /// level of the tree is like this: element -> children (if present) -> next
+    /// element. This order repeats every time the iterator steps on the
     /// children of a node.
     using bidirectional_iterator = basic_bidirectional_iterator<false>;
 
