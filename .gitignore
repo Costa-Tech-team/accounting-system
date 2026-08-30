@@ -1,3 +1,4 @@
 build
 docs/out
 CMakeUserPresets.json
+compile_commands.json
