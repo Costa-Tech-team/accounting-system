@@ -6,32 +6,28 @@
 
 class AccountsChart;
 class Journal;
+class AccountingEntry;
+class AccountNode;
 
-struct SQLite3Deleter
-{
-    void operator()(sqlite3 *db) const noexcept { sqlite3_close(db); }
-};
-
-/// @brief represents a handler for the database that abstracts the system from
-/// the database providing a simplified interface for the specific model of the
-/// system.
+/// @brief Represents a handler for the database that abstracts the system
+/// from the database providing a simplified interface for the specific
+/// model of the system.
 ///
-/// The database stores accounting entries and accounts in the user's chart.
-class SQLiteHandler
+/// The database stores accounting entries with their movements and accounts in
+/// the user's chart. The underlying database is SQLite.
+class DatabaseHandler
 {
-    using SQLitePointer = std::unique_ptr<sqlite3, SQLite3Deleter>;
-
   public:
     /// @exception std::runtime_error if unable to create the database
     /// connection.
     /// @param databasePath: if equals ":memory:", it creates the database in
     /// the memory
-    SQLiteHandler(const std::filesystem::path &databasePath);
-    SQLiteHandler(SQLiteHandler &&) = default;
-    SQLiteHandler(const SQLiteHandler &) = delete;
-    SQLiteHandler &operator=(SQLiteHandler &&) = default;
-    SQLiteHandler &operator=(const SQLiteHandler &) = delete;
-    ~SQLiteHandler() = default;
+    DatabaseHandler(const std::filesystem::path &databasePath);
+    DatabaseHandler(DatabaseHandler &&) = default;
+    DatabaseHandler(const DatabaseHandler &) = delete;
+    DatabaseHandler &operator=(DatabaseHandler &&) = default;
+    DatabaseHandler &operator=(const DatabaseHandler &) = delete;
+    ~DatabaseHandler() = default;
 
     /// @return a AccountsChart constructed from the accounts in the database.
     [[nodiscard]] AccountsChart retrieveChart() const;
@@ -59,10 +55,25 @@ class SQLiteHandler
     retrieveJournalOnMonth(AccountsChart &&chart,
                            std::chrono::year_month month) const;
 
+    /// Saves the entries and the chart on the database.
+    void saveJournal(const Journal &journal);
+
   private:
     void execQuery(const char *query);
 
     void createTables();
 
-    SQLitePointer database;
+    struct SQLite3Deleter
+    {
+        void operator()(sqlite3 *db) const noexcept;
+    };
+
+    struct StatementDeleter
+    {
+        void operator()(sqlite3_stmt *stmt) const noexcept;
+    };
+
+    using StmtPointer = std::unique_ptr<sqlite3_stmt, StatementDeleter>;
+
+    std::unique_ptr<sqlite3, SQLite3Deleter> database;
 };
