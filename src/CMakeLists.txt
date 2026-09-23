@@ -6,6 +6,7 @@ set(
   core/accounts_chart.cpp
   core/journal.cpp
   db/database_handler.cpp
+  db/accounts_repository.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

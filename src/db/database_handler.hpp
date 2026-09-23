@@ -40,15 +40,16 @@ class DatabaseHandler
     /// AccountsChart. Maybe with hashing.
     [[nodiscard]] Journal retrieveJournal(AccountsChart &&chart) const;
 
+    /// @return a Journal with only the entries in the specified year's
+    /// excercise.
+    [[nodiscard]] Journal retrieveJournalOnYear(AccountsChart &&chart,
+                                                std::chrono::year year) const;
+
     /// @return a Journal with only the entries in the date range.
     [[nodiscard]] Journal
     retrieveJournalRange(AccountsChart &&chart,
                          std::chrono::year_month_day start,
                          std::chrono::year_month_day end) const;
-
-    /// @return a Journal with only the entries in the specified month.
-    [[nodiscard]] Journal retrieveJournalOnYear(AccountsChart &&chart,
-                                                std::chrono::year year) const;
 
     /// @return a Journal with only the entries in the specified month.
     [[nodiscard]] Journal
