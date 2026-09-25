@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cstddef>
 #include <functional>
 
 #pragma once
@@ -11,15 +12,23 @@ using Date = std::chrono::year_month_day;
 /// accounting entry.
 struct Movement
 {
+  public:
     enum class Type
     {
         debit,
         credit
     };
 
+    Movement(Type type, size_t ammount, const AccountNode &account);
+
+    Type getType() const;
+    size_t getAmmount() const;
+    const AccountNode &getAccount() const;
+
+  private:
     Type type;
-    int ammount;
-    std::reference_wrapper<AccountNode> account;
+    size_t ammount;
+    std::reference_wrapper<const AccountNode> account;
 };
 
 /// @brief Represents a entry in a accountable journal for a commercial
@@ -31,6 +40,9 @@ struct Movement
 class AccountingEntry
 {
   public:
+    /// @param movements: the movements that will be moved into the entry.
+    /// @param detail: the detail of the entry.
+    /// @param date: the date of the entry.
     AccountingEntry(std::vector<Movement> &&movements, std::string_view detail,
                     const Date &date = currentDate());
 
@@ -40,11 +52,11 @@ class AccountingEntry
     AccountingEntry &operator=(AccountingEntry &&) = default;
     ~AccountingEntry() = default;
 
-    /// @return a view of the movements of the entry, sorted so that every debit
+    /// @return a view of the movements of the entry, sorted so that all debits
     /// are first and then by the alphabetical order of the accounts.
     std::span<const Movement> getMovements() const;
 
-    /// @return the date on which the transaction was made.
+    /// @return the entry's date.
     Date getDate() const;
 
   private:

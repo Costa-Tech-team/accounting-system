@@ -10,7 +10,7 @@
 /// class requires these methods to work with any node type.
 ///
 /// Move and copy constructors and assignments should update the parent member
-/// pointer of every children, andadding a child in a node should update the
+/// pointer of every children, and adding a child in a node should update the
 /// parent member pointer of every grandchildren to its corresponding father.
 /// This way, dangling pointers are avoided. The template also requires NodeType
 /// to have a property parent of type NodeType *.
@@ -19,7 +19,6 @@ concept TreeNode = requires(NodeType *n, NodeType &&i) {
     { n->getParent() } -> std::same_as<NodeType *>;
 
     { n->getChildren() } -> std::same_as<std::span<NodeType>>;
-    { n->addChild(std::move(i)) };
 };
 
 /// @brief Tree data structure that provides const and non const bidirectional

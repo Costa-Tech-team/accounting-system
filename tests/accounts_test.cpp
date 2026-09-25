@@ -8,7 +8,7 @@
 #include <core/account_node.hpp>
 #include <core/accounting_entry.hpp>
 
-TEST_CASE("Accountable accounts")
+TEST_CASE("Accounting accounts")
 {
     SECTION("Checking contradictory combinations are invalidated")
     {
@@ -27,10 +27,9 @@ TEST_CASE("Accountable accounts")
 
     SECTION("Getting an account's code")
     {
-
         AccountNode parentAccount{"", 1, AccountNode::Category::asset,
                                   AccountNode::Currentability::current};
-        AccountNode childAccount{"", parentAccount};
+        auto &childAccount = parentAccount.addChild("");
         REQUIRE(parentAccount.getCode() == "1.1.1");
         REQUIRE(childAccount.getCode() == "1.1.1.1");
     }
@@ -38,10 +37,15 @@ TEST_CASE("Accountable accounts")
 
 TEST_CASE("Accountable entries")
 {
-    SECTION("Creating a entry with differents debit and credit")
+    SECTION("Creating a entry with differents debit and credit and catching "
+            "the error")
     {
-        AccountNode acc{"", 1, AccountNode::Category::asset,
-                        AccountNode::Currentability::current, 1};
+        AccountNode acc{
+            "",
+            1,
+            AccountNode::Category::asset,
+            AccountNode::Currentability::current,
+        };
         std::vector<Movement> movements;
         movements.emplace_back(Movement::Type::debit, 3, acc);
         movements.emplace_back(Movement::Type::credit, 1, acc);
@@ -55,11 +59,11 @@ TEST_CASE("Accountable entries")
     {
         AccountNode ac1{"a", 1, AccountNode::Category::asset,
                         AccountNode::Currentability::current, true};
-        AccountNode ac2{"b", 2, AccountNode::Category::liability,
+        AccountNode ac2{"B", 2, AccountNode::Category::liability,
                         AccountNode::Currentability::current, true};
         AccountNode ac3{"c", 3, AccountNode::Category::asset,
                         AccountNode::Currentability::current, true};
-        AccountNode ac4{"d", 4, AccountNode::Category::liability,
+        AccountNode ac4{"D", 4, AccountNode::Category::liability,
                         AccountNode::Currentability::current, true};
         std::vector<Movement> movements;
         movements.emplace_back(Movement::Type::credit, 25, ac4);
@@ -69,11 +73,11 @@ TEST_CASE("Accountable entries")
 
         AccountingEntry entry{std::move(movements), ""};
         std::string order;
-        for (auto movement : entry.getMovements())
+        for (auto &movement : entry.getMovements())
         {
-            order += movement.account.get().getDisplayName();
+            order += movement.getAccount().getDisplayName();
         }
 
-        CHECK(order == "abcd");
+        CHECK(order == "aBcD");
     }
 }

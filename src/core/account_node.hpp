@@ -63,26 +63,20 @@ class AccountNode
     /// asset or liability; otherwise, is must be none.
     /// @param postable: whether the account can be used directly to note
     /// movements in accounting entries or not.
+    /// @param description: a description of what the account represents given
+    /// by the user.
     AccountNode(std::string_view displayName, uint8_t code, Category category,
-                Currentability currentability = Currentability::none,
-                bool postable = false);
-
-    /// constructor for an account with a parent. The node code is determined by
-    /// the parent.
-    /// @param displayName: the name of the account to display to the user
-    /// @param parent: the parent node of the account, the child will inherit
-    /// category and currentability from it.
-    /// @param postable: whether the account can be used directly to note
-    /// movements in accounting entries or not.
-    AccountNode(std::string_view displayName, AccountNode &parent,
-                bool postable = true);
+                Currentability currentability, bool postable = false,
+                std::string_view description = "");
 
     /// @return the name of the account
     std::string_view getDisplayName() const;
 
     /// @return a code formated as "X.X..." where every number notes category,
     /// currentability (only if asset or liability), and then the parents in
-    /// hierarchical order and at last the subcode of the node itself.
+    /// hierarchical order and at last the subcode of the node itself. The code
+    /// after category and currentability are determined by the order of the
+    /// node in that level in the children vector of its parent.
     std::string getCode() const;
 
     /// @return a numerical code of the node itself without any of the codes on
@@ -118,26 +112,40 @@ class AccountNode
 
     void setPostable(bool postable = true);
 
-    /// Adds a child account to be owned by this instance.
-    void addChild(AccountNode &&account);
+    /// Constructs a child account on the node.
+    /// @param displayName: the name of the account to display to the user
+    /// @param postable: whether the account can be used directly to note
+    /// movements in accounting entries or not.
+    /// @param description: a description of what the account represents given
+    /// by the user.
+    /// @return a reference to the created child.
+    AccountNode &addChild(std::string_view displayName, bool postable = true,
+                          std::string_view descripion = "");
 
   private:
-    void validate();
+    AccountNode(AccountNode *parent, std::string_view displayName,
+                bool postable, std::string_view description);
+
+    struct RootNodeData
+    {
+        Category category;
+        Currentability currentability;
+        uint8_t nodeSubcode;
+    };
+
+    void validate() const;
 
     void updateChildren();
 
     AccountNode *parent;
+    std::optional<RootNodeData> rootData;
     std::vector<AccountNode> children;
 
     std::string displayName;
-
-    std::optional<Category> category;
-    std::optional<Currentability> currentability;
-
-    uint8_t nodeSubcode;
     bool postable;
+    std::string description;
 };
 
-uint8_t subCode(AccountNode::Category category);
+uint8_t categoryCode(AccountNode::Category category);
 
-uint8_t subCode(AccountNode::Currentability currentability);
+uint8_t currentabilityCode(AccountNode::Currentability currentability);

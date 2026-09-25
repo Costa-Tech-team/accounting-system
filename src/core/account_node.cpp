@@ -1,13 +1,20 @@
 #include "account_node.hpp"
 
+#include <cassert>
+#include <cstdint>
+#include <iterator>
+#include <memory>
+#include <optional>
 #include <stdexcept>
+#include <utility>
 
 AccountNode::AccountNode(AccountNode &&other) noexcept
   : parent{other.parent},
+    rootData{other.rootData},
     children{std::move(other.children)},
     displayName{std::move(other.displayName)},
-    category{other.category},
-    currentability{other.currentability}
+    postable{other.postable},
+    description(other.description)
 {
     updateChildren();
 }
@@ -15,34 +22,26 @@ AccountNode::AccountNode(AccountNode &&other) noexcept
 AccountNode &AccountNode::operator=(AccountNode &&other) noexcept
 {
     parent = other.parent;
+    rootData = other.rootData;
     children = std::move(other.children);
     displayName = std::move(other.displayName);
-    category = other.category;
-    currentability = other.currentability;
+    description = std::move(other.description);
+    postable = other.postable;
     updateChildren();
     return *this;
 }
 
 AccountNode::AccountNode(std::string_view displayName, uint8_t code,
                          Category category, Currentability currentability,
-                         bool postable)
+                         bool postable, std::string_view description)
   : parent{nullptr},
+    rootData{RootNodeData(category, currentability, code)},
     displayName{displayName},
-    category{category},
-    currentability{currentability},
-    nodeSubcode{code},
-    postable{postable}
+    postable{postable},
+    description{description}
 {
     validate();
 }
-
-AccountNode::AccountNode(std::string_view displayName, AccountNode &parent,
-                         bool postable)
-  : parent{&parent},
-    displayName{displayName},
-    nodeSubcode{static_cast<uint8_t>(parent.getChildren().size() + 1)},
-    postable{postable}
-{}
 
 std::string_view AccountNode::getDisplayName() const { return displayName; }
 
@@ -51,21 +50,31 @@ std::string AccountNode::getCode() const
     std::string code;
     if (parent == nullptr)
     {
-        code = std::to_string(subCode(getCategory())) + ".";
-        if (currentability != Currentability::none)
+        code = std::to_string(categoryCode(getCategory())) + ".";
+        if (getCurrentability() != Currentability::none)
         {
-            uint8_t currentabilityNumber = subCode(getCurrentability());
+            uint8_t currentabilityNumber =
+                currentabilityCode(getCurrentability());
             code += std::to_string(currentabilityNumber) + "." +
-                    std::to_string(nodeSubcode);
+                    std::to_string(getNodeSubcode());
         }
     } else
     {
-        code = parent->getCode() + "." + std::to_string(nodeSubcode);
+        code = parent->getCode() + "." + std::to_string(getNodeSubcode());
     }
     return code;
 }
 
-uint8_t AccountNode::getNodeSubcode() const { return nodeSubcode; }
+uint8_t AccountNode::getNodeSubcode() const
+{
+    if (parent == nullptr)
+    {
+        return rootData->nodeSubcode;
+    }
+    auto firstSibling = std::to_address(parent->getChildren().cbegin());
+
+    return static_cast<uint8_t>(std::distance(firstSibling, this)) + 1;
+}
 
 AccountNode::Nature AccountNode::getNature(AccountNode::Category category)
 {
@@ -88,17 +97,17 @@ AccountNode::Nature AccountNode::getNature(AccountNode::Category category)
 AccountNode::Nature AccountNode::getNature() const
 {
     return parent ? AccountNode::getNature(parent->getCategory()) :
-                    AccountNode::getNature(*category);
+                    AccountNode::getNature(rootData->category);
 }
 
 AccountNode::Category AccountNode::getCategory() const
 {
-    return parent ? parent->getCategory() : *category;
+    return parent ? parent->getCategory() : rootData->category;
 }
 
 AccountNode::Currentability AccountNode::getCurrentability() const
 {
-    return parent ? parent->getCurrentability() : *currentability;
+    return parent ? parent->getCurrentability() : rootData->currentability;
 }
 
 AccountNode *AccountNode::getParent() { return parent; }
@@ -116,21 +125,31 @@ void AccountNode::setDisplayName(std::string_view name) { displayName = name; }
 
 void AccountNode::setPostable(bool postable) { this->postable = postable; }
 
-void AccountNode::addChild(AccountNode &&account)
+AccountNode &AccountNode::addChild(std::string_view displayName, bool postable,
+                                   std::string_view descripion)
 {
-    children.push_back(std::move(account));
-    children.back().parent = this;
+    children.emplace_back(AccountNode(this, displayName, postable, descripion));
     for (auto &child : children)
     {
         child.updateChildren();
     }
+    return children.back();
 }
 
-void AccountNode::validate()
+AccountNode::AccountNode(AccountNode *parent, std::string_view displayName,
+                         bool postable, std::string_view description)
+  : parent{parent},
+    rootData{std::nullopt},
+    displayName{displayName},
+    postable{postable},
+    description{description}
+{}
+
+void AccountNode::validate() const
 {
-    bool assetOrLiability =
-        category == Category::asset || category == Category::liability;
-    bool hasCurrentability = currentability != Currentability::none;
+    bool assetOrLiability = getCategory() == Category::asset ||
+                            getCategory() == Category::liability;
+    bool hasCurrentability = getCurrentability() != Currentability::none;
     if (assetOrLiability != hasCurrentability)
     {
         throw std::invalid_argument(
@@ -146,12 +165,12 @@ void AccountNode::updateChildren()
     }
 }
 
-uint8_t subCode(AccountNode::Category category)
+uint8_t categoryCode(AccountNode::Category category)
 {
     return static_cast<uint8_t>(category);
 }
 
-uint8_t subCode(AccountNode::Currentability currentability)
+uint8_t currentabilityCode(AccountNode::Currentability currentability)
 {
     return static_cast<uint8_t>(currentability);
 }
